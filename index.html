@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Comparison Tool</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f7fa;
+            color: #333;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+        }
+        .comparison-options {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+        }
+        .option-group {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 10px;
+        }
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .sources-container {
+            display: flex;
+            gap: 20px;
+        }
+        .source {
+            flex: 1;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+        .source h2 {
+            margin-top: 0;
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        select, input, textarea {
+            width: 100%;
+            padding: 10px;
+            margin: 8px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        select {
+            background-color: #f9f9f9;
+        }
+        textarea {
+            min-height: 150px;
+            resize: vertical;
+        }
+        label {
+            font-weight: 500;
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .hidden {
+            display: none;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            font-size: 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            display: block;
+            margin: 20px auto 0;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Data Comparison Tool</h1>
+        
+        <div class="comparison-options">
+            <div class="option-group">
+                <div class="checkbox-container">
+                    <input type="checkbox" id="primaryKeyComparison" name="primaryKeyComparison">
+                    <label for="primaryKeyComparison">Primary Key Comparison</label>
+                </div>
+                <div class="checkbox-container">
+                    <input type="checkbox" id="columnLevelComparison" name="columnLevelComparison">
+                    <label for="columnLevelComparison">Column-level Comparison</label>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="targetType">Target Type:</label>
+                <select id="targetType" name="targetType">
+                    <option value="tableName">Table Name</option>
+                    <option value="sqlQuery">SQL Query</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="sources-container">
+            <!-- Source 1 -->
+            <div class="source">
+                <h2>Source 1</h2>
+                <div class="form-group">
+                    <label for="source1Type">Database Type:</label>
+                    <select id="source1Type" name="source1Type">
+                        <option value="HANA">HANA</option>
+                        <option value="Snowflake">Snowflake</option>
+                    </select>
+                </div>
+                
+                <!-- HANA Fields for Source 1 -->
+                <div id="source1HANAFields">
+                    <div class="form-group">
+                        <label for="source1HANAAddress">Address:</label>
+                        <input type="text" id="source1HANAAddress" name="source1HANAAddress">
+                    </div>
+                    <div class="form-group">
+                        <label for="source1HANAPort">Port:</label>
+                        <input type="text" id="source1HANAPort" name="source1HANAPort">
+                    </div>
+                    <div class="form-group">
+                        <label for="source1HANAUser">User:</label>
+                        <input type="text" id="source1HANAUser" name="source1HANAUser">
+                    </div>
+                    <div class="form-group">
+                        <label for="source1HANAPassword">Password:</label>
+                        <input type="password" id="source1HANAPassword" name="source1HANAPassword">
+                    </div>
+                </div>
+                
+                <!-- Snowflake Fields for Source 1 -->
+                <div id="source1SnowflakeFields" class="hidden">
+                    <div class="form-group">
+                        <label for="source1SnowflakeUser">User:</label>
+                        <input type="text" id="source1SnowflakeUser" name="source1SnowflakeUser">
+                    </div>
+                    <div class="form-group">
+                        <label for="source1SnowflakePassword">Password:</label>
+                        <input type="password" id="source1SnowflakePassword" name="source1SnowflakePassword">
+                    </div>
+                    <div class="form-group">
+                        <label for="source1SnowflakeAccount">Account:</label>
+                        <input type="text" id="source1SnowflakeAccount" name="source1SnowflakeAccount">
+                    </div>
+                    <div class="form-group">
+                        <label for="source1SnowflakeDatabase">Database:</label>
+                        <input type="text" id="source1SnowflakeDatabase" name="source1SnowflakeDatabase">
+                    </div>
+                    <div class="form-group">
+                        <label for="source1SnowflakeWarehouse">Warehouse:</label>
+                        <input type="text" id="source1SnowflakeWarehouse" name="source1SnowflakeWarehouse">
+                    </div>
+                    <div class="form-group">
+                        <label for="source1SnowflakeRole">Role:</label>
+                        <input type="text" id="source1SnowflakeRole" name="source1SnowflakeRole">
+                    </div>
+                </div>
+                
+                <!-- Table Name Fields for Source 1 -->
+                <div id="source1TableFields">
+                    <div class="form-group">
+                        <label for="source1SchemaName">Schema Name:</label>
+                        <input type="text" id="source1SchemaName" name="source1SchemaName">
+                    </div>
+                    <div class="form-group">
+                        <label for="source1TableName">Table Name:</label>
+                        <input type="text" id="source1TableName" name="source1TableName">
+                    </div>
+                    <div class="form-group">
+                        <label for="source1PrimaryKey">Primary Key:</label>
+                        <input type="text" id="source1PrimaryKey" name="source1PrimaryKey">
+                    </div>
+                </div>
+                
+                <!-- SQL Query Field for Source 1 -->
+                <div id="source1QueryField" class="hidden">
+                    <div class="form-group">
+                        <label for="source1SQLQuery">SQL Query:</label>
+                        <textarea id="source1SQLQuery" name="source1SQLQuery"></textarea>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Source 2 -->
+            <div class="source">
+                <h2>Source 2</h2>
+                <div class="form-group">
+                    <label for="source2Type">Database Type:</label>
+                    <select id="source2Type" name="source2Type">
+                        <option value="HANA">HANA</option>
+                        <option value="Snowflake">Snowflake</option>
+                    </select>
+                </div>
+                
+                <!-- HANA Fields for Source 2 -->
+                <div id="source2HANAFields">
+                    <div class="form-group">
+                        <label for="source2HANAAddress">Address:</label>
+                        <input type="text" id="source2HANAAddress" name="source2HANAAddress">
+                    </div>
+                    <div class="form-group">
+                        <label for="source2HANAPort">Port:</label>
+                        <input type="text" id="source2HANAPort" name="source2HANAPort">
+                    </div>
+                    <div class="form-group">
+                        <label for="source2HANAUser">User:</label>
+                        <input type="text" id="source2HANAUser" name="source2HANAUser">
+                    </div>
+                    <div class="form-group">
+                        <label for="source2HANAPassword">Password:</label>
+                        <input type="password" id="source2HANAPassword" name="source2HANAPassword">
+                    </div>
+                </div>
+                
+                <!-- Snowflake Fields for Source 2 -->
+                <div id="source2SnowflakeFields" class="hidden">
+                    <div class="form-group">
+                        <label for="source2SnowflakeUser">User:</label>
+                        <input type="text" id="source2SnowflakeUser" name="source2SnowflakeUser">
+                    </div>
+                    <div class="form-group">
+                        <label for="source2SnowflakePassword">Password:</label>
+                        <input type="password" id="source2SnowflakePassword" name="source2SnowflakePassword">
+                    </div>
+                    <div class="form-group">
+                        <label for="source2SnowflakeAccount">Account:</label>
+                        <input type="text" id="source2SnowflakeAccount" name="source2SnowflakeAccount">
+                    </div>
+                    <div class="form-group">
+                        <label for="source2SnowflakeDatabase">Database:</label>
+                        <input type="text" id="source2SnowflakeDatabase" name="source2SnowflakeDatabase">
+                    </div>
+                    <div class="form-group">
+                        <label for="source2SnowflakeWarehouse">Warehouse:</label>
+                        <input type="text" id="source2SnowflakeWarehouse" name="source2SnowflakeWarehouse">
+                    </div>
+                    <div class="form-group">
+                        <label for="source2SnowflakeRole">Role:</label>
+                        <input type="text" id="source2SnowflakeRole" name="source2SnowflakeRole">
+                    </div>
+                </div>
+                
+                <!-- Table Name Fields for Source 2 -->
+                <div id="source2TableFields">
+                    <div class="form-group">
+                        <label for="source2SchemaName">Schema Name:</label>
+                        <input type="text" id="source2SchemaName" name="source2SchemaName">
+                    </div>
+                    <div class="form-group">
+                        <label for="source2TableName">Table Name:</label>
+                        <input type="text" id="source2TableName" name="source2TableName">
+                    </div>
+                    <div class="form-group">
+                        <label for="source2PrimaryKey">Primary Key:</label>
+                        <input type="text" id="source2PrimaryKey" name="source2PrimaryKey">
+                    </div>
+                </div>
+                
+                <!-- SQL Query Field for Source 2 -->
+                <div id="source2QueryField" class="hidden">
+                    <div class="form-group">
+                        <label for="source2SQLQuery">SQL Query:</label>
+                        <textarea id="source2SQLQuery" name="source2SQLQuery"></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <button type="button" id="compareButton">Compare Data</button>
+    </div>
+
+    <script>
+        // Show/hide fields based on selection
+        document.getElementById('targetType').addEventListener('change', function() {
+            const isTableName = this.value === 'tableName';
+            
+            // Source 1
+            document.getElementById('source1TableFields').style.display = isTableName ? 'block' : 'none';
+            document.getElementById('source1QueryField').style.display = isTableName ? 'none' : 'block';
+            
+            // Source 2
+            document.getElementById('source2TableFields').style.display = isTableName ? 'block' : 'none';
+            document.getElementById('source2QueryField').style.display = isTableName ? 'none' : 'block';
+        });
+        
+        // Source 1 database type change
+        document.getElementById('source1Type').addEventListener('change', function() {
+            const isHANA = this.value === 'HANA';
+            document.getElementById('source1HANAFields').style.display = isHANA ? 'block' : 'none';
+            document.getElementById('source1SnowflakeFields').style.display = isHANA ? 'none' : 'block';
+        });
+        
+        // Source 2 database type change
+        document.getElementById('source2Type').addEventListener('change', function() {
+            const isHANA = this.value === 'HANA';
+            document.getElementById('source2HANAFields').style.display = isHANA ? 'block' : 'none';
+            document.getElementById('source2SnowflakeFields').style.display = isHANA ? 'none' : 'block';
+        });
+        
+        // Initialize the form based on default values
+        window.onload = function() {
+            // Trigger change events to set initial visibility
+            document.getElementById('targetType').dispatchEvent(new Event('change'));
+            document.getElementById('source1Type').dispatchEvent(new Event('change'));
+            document.getElementById('source2Type').dispatchEvent(new Event('change'));
+        };
+    </script>
+</body>
+</html>
