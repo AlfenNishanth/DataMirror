@@ -131,19 +131,6 @@ def get_common_columns(columns1, columns2):
 
 
 def get_column_types(conn, schema_name, table_name, columns, source):
-    """
-    Fetches data types for columns in a table.
-    
-    Args:
-        conn: Database connection
-        schema_name: Schema name
-        table_name: Table name
-        columns: List of column names
-        source: Source type ('HANA' or 'SF')
-        
-    Returns:
-        Dictionary mapping column names (lowercase) to data types
-    """
     if source.lower() == "hana":
         query = f"""
             SELECT COLUMN_NAME, DATA_TYPE_NAME
@@ -172,7 +159,6 @@ def get_column_types(conn, schema_name, table_name, columns, source):
         cursor.close()
 
 def generate_hash_query(source, id_field, column_names, table_name, schema_name):
-    """Generate hash query for the given source"""
     if source.lower() == "hana":
         concat_parts = []
         for col in column_names:
@@ -197,8 +183,8 @@ def generate_hash_query(source, id_field, column_names, table_name, schema_name)
         concat_expr = '||'.join(concat_parts)
         query = f'SELECT "{id_field}", UPPER(MD5({concat_expr})) as row_hash FROM {schema_name}."{table_name}"'
         
-        with open("hash_query_sf.txt", "w") as f:
-             f.write(query)
+        # with open("hash_query_sf.txt", "w") as f:
+        #      f.write(query)
 
         return query
 
@@ -288,8 +274,6 @@ def compare_hash_values(hash_map_1, hash_map_2):
     missing_in_2 = ids_in_1 - ids_in_2
     missing_in_1 = ids_in_2 - ids_in_1
 
-    
-    
     mismatched_ids = [id for id in ids_in_both if hash_map_1[id] != hash_map_2[id]]
 
 ### todo: sampled 1000 for comparison
@@ -396,7 +380,6 @@ def get_detailed_comparison(source1, source2, conn1, conn2, table_name1, table_n
         },
         "mismatched_records": all_detailed_results
     }
-
 
 def categorize_difference(val1, val2):
 
@@ -571,7 +554,6 @@ def analyze_data_differences(source1, source2, conn1, conn2, table_name1, table_
         "column_differences": column_differences,
         "summary": summary
     }
-
 
 def main_comparison(source1, source2, conn1, conn2, table_name1,table_name2, schema_name1, schema_name2, id_field1, id_field2, col_level_compare=False):
    

@@ -1,0 +1,18 @@
+data-comparison-app/
+│
+├── app/
+│   ├── __init__.py          # Flask app initialization
+│   ├── routes.py            # API endpoints
+│   ├── services/
+│   │   ├── __init__.py
+│   │   ├── comparison.py    # Your core comparison logic
+│   │   ├── connectors.py    # Database connection functions
+│   │   └── utils.py         # Helper functions
+│   │
+│   └── models/
+│       ├── __init__.py
+│       └── request_schemas.py  
+│
+├── config.py                # Configuration settings
+├── run.py                   # Application entry point
+└── requirements.txt         # Dependencies

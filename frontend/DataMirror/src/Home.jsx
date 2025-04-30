@@ -1,37 +1,142 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-
+import ComparisonTypeSelector from "./components/ComparisonTypeSelector";
+import SourcePanel from "./components/SourcePanel";
+import { compareTables } from "./api";
 export default function Home() {
   const navigate = useNavigate();
   const [comparisonType, setComparisonType] = useState("primaryKey");
-  
-  // Source 1 state
+
   const [source1Type, setSource1Type] = useState("HANA");
   const [source1Accounts, setSource1Accounts] = useState([]);
   const [selectedSource1Account, setSelectedSource1Account] = useState("");
-  
-  // Source 2 state
-  const [source2Type, setSource2Type] = useState("HANA");
+
+  const [source2Type, setSource2Type] = useState("Snowflake");
   const [source2Accounts, setSource2Accounts] = useState([]);
   const [selectedSource2Account, setSelectedSource2Account] = useState("");
-  
-  // Load saved accounts when component mounts and when sourceType changes
+
+  const [isLoading, setIsLoading] = useState(false);
+
   useEffect(() => {
-    const savedSource1Accounts = JSON.parse(localStorage.getItem(`${source1Type}Accounts`) || "[]");
+    const savedSource1Accounts = JSON.parse(
+      localStorage.getItem(`${source1Type}Accounts`) || "[]"
+    );
     setSource1Accounts(savedSource1Accounts);
-    setSelectedSource1Account(savedSource1Accounts.length > 0 ? savedSource1Accounts[0].name : "");
+    setSelectedSource1Account(
+      savedSource1Accounts.length > 0 ? savedSource1Accounts[0].name : ""
+    );
   }, [source1Type]);
-  
+
   useEffect(() => {
-    const savedSource2Accounts = JSON.parse(localStorage.getItem(`${source2Type}Accounts`) || "[]");
+    const savedSource2Accounts = JSON.parse(
+      localStorage.getItem(`${source2Type}Accounts`) || "[]"
+    );
     setSource2Accounts(savedSource2Accounts);
-    setSelectedSource2Account(savedSource2Accounts.length > 0 ? savedSource2Accounts[0].name : "");
+    setSelectedSource2Account(
+      savedSource2Accounts.length > 0 ? savedSource2Accounts[0].name : ""
+    );
   }, [source2Type]);
 
-  const handleCompare = () => {
-    // This would be replaced with actual comparison logic
-    console.log("Comparing data...");
-    // Here you would typically make an API call to initiate the comparison
+  const handleCompare = async () => {
+    const source1Account = source1Accounts.find(
+      (account) => account.name === selectedSource1Account
+    );
+    const source2Account = source2Accounts.find(
+      (account) => account.name === selectedSource2Account
+    );
+
+    if (!source1Account || !source2Account) {
+      alert("Please select valid accounts for both sources");
+      return;
+    }
+
+    // Get values from form fields based on comparison type
+    let tableInfo = {};
+
+    if (comparisonType === "primaryKey" || comparisonType === "columnLevel") {
+      const schema1 = document.getElementById("source1SchemaName").value;
+      const table1 = document.getElementById("source1TableName").value;
+      const pk1 = document.getElementById("source1PrimaryKey").value;
+
+      const schema2 = document.getElementById("source2SchemaName").value;
+      const table2 = document.getElementById("source2TableName").value;
+      const pk2 = document.getElementById("source2PrimaryKey").value;
+
+      if (!schema1 || !table1 || !pk1 || !schema2 || !table2 || !pk2) {
+        alert("Please fill in all required fields");
+        return;
+      }
+
+      tableInfo = {
+        schema_name1: schema1,
+        table_name1: table1,
+        id_field1: pk1,
+        schema_name2: schema2,
+        table_name2: table2,
+        id_field2: pk2,
+        column_level_comparison: comparisonType === "columnLevel",
+      };
+    } else if (comparisonType === "tableStructure") {
+      const schema1 = document.getElementById("source1SchemaName").value;
+      const table1 = document.getElementById("source1TableName").value;
+
+      const schema2 = document.getElementById("source2SchemaName").value;
+      const table2 = document.getElementById("source2TableName").value;
+
+      if (!schema1 || !table1 || !schema2 || !table2) {
+        alert("Please fill in all required fields");
+        return;
+      }
+
+      tableInfo = {
+        schema_name1: schema1,
+        table_name1: table1,
+        schema_name2: schema2,
+        table_name2: table2,
+      };
+    } else if (comparisonType === "sqlQuery") {
+      const query1 = document.getElementById("source1SQLQuery").value;
+      const query2 = document.getElementById("source2SQLQuery").value;
+
+      if (!query1 || !query2) {
+        alert("Please provide SQL queries for both sources");
+        return;
+      }
+
+      tableInfo = {
+        query1: query1,
+        query2: query2,
+      };
+    }
+
+    // Build the payload
+    const payload = {
+      source1: source1Type.toUpperCase(),
+      source1_connection: source1Account,
+      source2: source2Type.toUpperCase(),
+      source2_connection: source2Account,
+      table_info: tableInfo,
+      comparison_type: comparisonType,
+    };
+
+    try {
+      // Show loading indicator or disable button
+      setIsLoading(true);
+
+      // Call the API
+      const result = await compareTables(payload);
+
+      // Process the results
+      console.log("Comparison result:", result);
+
+      // Navigate to results page with the data
+      navigate("/results", { state: { result } });
+    } catch (error) {
+      console.error("Error comparing data:", error);
+      alert(`Error: ${error.error || "An unknown error occurred"}`);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleManageAccounts = () => {
@@ -43,9 +148,7 @@ export default function Home() {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <header className="mb-6 flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-gray-800">
-            Data Comparison Tool
-          </h1>
+          <h1 className="text-2xl font-bold text-gray-800">DataMirror</h1>
           <button
             className="bg-gray-200 hover:bg-gray-300 text-gray-700 py-2 px-4 rounded-md text-sm font-medium transition"
             onClick={handleManageAccounts}
@@ -55,389 +158,36 @@ export default function Home() {
         </header>
 
         {/* Comparison Options */}
-        <div className="bg-white rounded-lg shadow-sm p-4 border border-gray-100 mb-6">
-          <h2 className="text-md font-semibold mb-3 text-gray-700">
-            Comparison Type
-          </h2>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            <div className="flex items-center">
-              <input
-                type="radio"
-                id="primaryKeyComparison"
-                className="mr-2 h-4 w-4 text-blue-600"
-                name="comparisonType"
-                value="primaryKey"
-                checked={comparisonType === "primaryKey"}
-                onChange={(e) => setComparisonType(e.target.value)}
-              />
-              <label
-                htmlFor="primaryKeyComparison"
-                className="text-sm text-gray-700"
-              >
-                Primary Key Comparison
-              </label>
-            </div>
-
-            <div className="flex items-center">
-              <input
-                type="radio"
-                id="columnLevelComparison"
-                className="mr-2 h-4 w-4 text-blue-600"
-                name="comparisonType"
-                value="columnLevel"
-                checked={comparisonType === "columnLevel"}
-                onChange={(e) => setComparisonType(e.target.value)}
-              />
-              <label
-                htmlFor="columnLevelComparison"
-                className="text-sm text-gray-700"
-              >
-                Column-level Comparison
-              </label>
-            </div>
-
-            <div className="flex items-center">
-              <input
-                type="radio"
-                id="tableStructureComparison"
-                className="mr-2 h-4 w-4 text-blue-600"
-                name="comparisonType"
-                value="tableStructure"
-                checked={comparisonType === "tableStructure"}
-                onChange={(e) => setComparisonType(e.target.value)}
-              />
-              <label
-                htmlFor="tableStructureComparison"
-                className="text-sm text-gray-700"
-              >
-                Table Structure Comparison
-              </label>
-            </div>
-
-            <div className="flex items-center">
-              <input
-                type="radio"
-                id="sqlQueryComparison"
-                className="mr-2 h-4 w-4 text-blue-600"
-                name="comparisonType"
-                value="sqlQuery"
-                checked={comparisonType === "sqlQuery"}
-                onChange={(e) => setComparisonType(e.target.value)}
-              />
-              <label
-                htmlFor="sqlQueryComparison"
-                className="text-sm text-gray-700"
-              >
-                SQL Query Comparison
-              </label>
-            </div>
-          </div>
-        </div>
+        <ComparisonTypeSelector
+          comparisonType={comparisonType}
+          setComparisonType={setComparisonType}
+        />
 
         {/* Sources Container */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-          {/* Source 1 */}
-          <div
-            className="bg-white rounded-lg shadow-sm p-4 border border-blue-100"
-          >
-            <div className="mb-3 pb-2 border-b border-gray-100">
-              <h2 className="text-md font-semibold text-blue-700">
-                Source 1
-              </h2>
-            </div>
+          <SourcePanel
+            sourceNumber={1}
+            sourceType={source1Type}
+            setSourceType={setSource1Type}
+            accounts={source1Accounts}
+            selectedAccount={selectedSource1Account}
+            setSelectedAccount={setSelectedSource1Account}
+            comparisonType={comparisonType}
+            borderColor="blue"
+            titleColor="blue"
+          />
 
-            <div className="mb-4">
-              <label
-                htmlFor="source1Type"
-                className="block text-sm font-medium text-gray-700 mb-1"
-              >
-                Source Type:
-              </label>
-              <select
-                id="source1Type"
-                className="w-full rounded border border-gray-300 p-2 text-sm"
-                value={source1Type}
-                onChange={(e) => setSource1Type(e.target.value)}
-              >
-                <option value="HANA">HANA</option>
-                <option value="Snowflake">Snowflake</option>
-              </select>
-            </div>
-
-            <div className="mb-4">
-              <label
-                htmlFor="source1AccountSelect"
-                className="block text-sm font-medium text-gray-700 mb-1"
-              >
-                Select Account:
-              </label>
-              <select
-                id="source1AccountSelect"
-                className="w-full rounded border border-gray-300 p-2 text-sm"
-                value={selectedSource1Account}
-                onChange={(e) => setSelectedSource1Account(e.target.value)}
-              >
-                {source1Accounts.length === 0 ? (
-                  <option value="">No saved accounts</option>
-                ) : (
-                  source1Accounts.map((account) => (
-                    <option key={account.name} value={account.name}>
-                      {account.name}
-                    </option>
-                  ))
-                )}
-              </select>
-              {source1Accounts.length === 0 && (
-                <p className="text-sm text-red-500 mt-1">
-                  Please add an account in the Account Manager
-                </p>
-              )}
-            </div>
-
-            {/* Fields based on comparison type */}
-            {(comparisonType === "primaryKey" || comparisonType === "columnLevel") && (
-              <div className="space-y-3">
-                <div>
-                  <label
-                    htmlFor="source1SchemaName"
-                    className="block text-sm font-medium text-gray-700 mb-1"
-                  >
-                    Schema Name:
-                  </label>
-                  <input
-                    type="text"
-                    id="source1SchemaName"
-                    className="w-full rounded border border-gray-300 p-2 text-sm"
-                  />
-                </div>
-                <div>
-                  <label
-                    htmlFor="source1TableName"
-                    className="block text-sm font-medium text-gray-700 mb-1"
-                  >
-                    Table Name:
-                  </label>
-                  <input
-                    type="text"
-                    id="source1TableName"
-                    className="w-full rounded border border-gray-300 p-2 text-sm"
-                  />
-                </div>
-                <div>
-                  <label
-                    htmlFor="source1PrimaryKey"
-                    className="block text-sm font-medium text-gray-700 mb-1"
-                  >
-                    Primary Key:
-                  </label>
-                  <input
-                    type="text"
-                    id="source1PrimaryKey"
-                    className="w-full rounded border border-gray-300 p-2 text-sm"
-                  />
-                </div>
-              </div>
-            )}
-
-            {comparisonType === "tableStructure" && (
-              <div className="space-y-3">
-                <div>
-                  <label
-                    htmlFor="source1SchemaName"
-                    className="block text-sm font-medium text-gray-700 mb-1"
-                  >
-                    Schema Name:
-                  </label>
-                  <input
-                    type="text"
-                    id="source1SchemaName"
-                    className="w-full rounded border border-gray-300 p-2 text-sm"
-                  />
-                </div>
-                <div>
-                  <label
-                    htmlFor="source1TableName"
-                    className="block text-sm font-medium text-gray-700 mb-1"
-                  >
-                    Table Name:
-                  </label>
-                  <input
-                    type="text"
-                    id="source1TableName"
-                    className="w-full rounded border border-gray-300 p-2 text-sm"
-                  />
-                </div>
-              </div>
-            )}
-
-            {comparisonType === "sqlQuery" && (
-              <div>
-                <label
-                  htmlFor="source1SQLQuery"
-                  className="block text-sm font-medium text-gray-700 mb-1"
-                >
-                  SQL Query:
-                </label>
-                <textarea
-                  id="source1SQLQuery"
-                  className="w-full rounded border border-gray-300 p-2 text-sm"
-                  rows={6}
-                ></textarea>
-              </div>
-            )}
-          </div>
-
-          {/* Source 2 */}
-          <div
-            className="bg-white rounded-lg shadow-sm p-4 border border-green-100"
-          >
-            <div className="mb-3 pb-2 border-b border-gray-100">
-              <h2 className="text-md font-semibold text-green-700">
-                Source 2
-              </h2>
-            </div>
-
-            <div className="mb-4">
-              <label
-                htmlFor="source2Type"
-                className="block text-sm font-medium text-gray-700 mb-1"
-              >
-                Source Type:
-              </label>
-              <select
-                id="source2Type"
-                className="w-full rounded border border-gray-300 p-2 text-sm"
-                value={source2Type}
-                onChange={(e) => setSource2Type(e.target.value)}
-              >
-                <option value="HANA">HANA</option>
-                <option value="Snowflake">Snowflake</option>
-              </select>
-            </div>
-
-            <div className="mb-4">
-              <label
-                htmlFor="source2AccountSelect"
-                className="block text-sm font-medium text-gray-700 mb-1"
-              >
-                Select Account:
-              </label>
-              <select
-                id="source2AccountSelect"
-                className="w-full rounded border border-gray-300 p-2 text-sm"
-                value={selectedSource2Account}
-                onChange={(e) => setSelectedSource2Account(e.target.value)}
-              >
-                {source2Accounts.length === 0 ? (
-                  <option value="">No saved accounts</option>
-                ) : (
-                  source2Accounts.map((account) => (
-                    <option key={account.name} value={account.name}>
-                      {account.name}
-                    </option>
-                  ))
-                )}
-              </select>
-              {source2Accounts.length === 0 && (
-                <p className="text-sm text-red-500 mt-1">
-                  Please add an account in the Account Manager
-                </p>
-              )}
-            </div>
-
-            {/* Fields based on comparison type */}
-            {(comparisonType === "primaryKey" || comparisonType === "columnLevel") && (
-              <div className="space-y-3">
-                <div>
-                  <label
-                    htmlFor="source2SchemaName"
-                    className="block text-sm font-medium text-gray-700 mb-1"
-                  >
-                    Schema Name:
-                  </label>
-                  <input
-                    type="text"
-                    id="source2SchemaName"
-                    className="w-full rounded border border-gray-300 p-2 text-sm"
-                  />
-                </div>
-                <div>
-                  <label
-                    htmlFor="source2TableName"
-                    className="block text-sm font-medium text-gray-700 mb-1"
-                  >
-                    Table Name:
-                  </label>
-                  <input
-                    type="text"
-                    id="source2TableName"
-                    className="w-full rounded border border-gray-300 p-2 text-sm"
-                  />
-                </div>
-                <div>
-                  <label
-                    htmlFor="source2PrimaryKey"
-                    className="block text-sm font-medium text-gray-700 mb-1"
-                  >
-                    Primary Key:
-                  </label>
-                  <input
-                    type="text"
-                    id="source2PrimaryKey"
-                    className="w-full rounded border border-gray-300 p-2 text-sm"
-                  />
-                </div>
-              </div>
-            )}
-
-            {comparisonType === "tableStructure" && (
-              <div className="space-y-3">
-                <div>
-                  <label
-                    htmlFor="source2SchemaName"
-                    className="block text-sm font-medium text-gray-700 mb-1"
-                  >
-                    Schema Name:
-                  </label>
-                  <input
-                    type="text"
-                    id="source2SchemaName"
-                    className="w-full rounded border border-gray-300 p-2 text-sm"
-                  />
-                </div>
-                <div>
-                  <label
-                    htmlFor="source2TableName"
-                    className="block text-sm font-medium text-gray-700 mb-1"
-                  >
-                    Table Name:
-                  </label>
-                  <input
-                    type="text"
-                    id="source2TableName"
-                    className="w-full rounded border border-gray-300 p-2 text-sm"
-                  />
-                </div>
-              </div>
-            )}
-
-            {comparisonType === "sqlQuery" && (
-              <div>
-                <label
-                  htmlFor="source2SQLQuery"
-                  className="block text-sm font-medium text-gray-700 mb-1"
-                >
-                  SQL Query:
-                </label>
-                <textarea
-                  id="source2SQLQuery"
-                  className="w-full rounded border border-gray-300 p-2 text-sm"
-                  rows={6}
-                ></textarea>
-              </div>
-            )}
-          </div>
+          <SourcePanel
+            sourceNumber={2}
+            sourceType={source2Type}
+            setSourceType={setSource2Type}
+            accounts={source2Accounts}
+            selectedAccount={selectedSource2Account}
+            setSelectedAccount={setSelectedSource2Account}
+            comparisonType={comparisonType}
+            borderColor="green"
+            titleColor="green"
+          />
         </div>
 
         {/* Compare Button */}
@@ -445,10 +195,22 @@ export default function Home() {
           <button
             className="bg-blue-600 hover:bg-blue-700 text-white py-2 px-6 rounded-md text-sm font-medium transition"
             onClick={handleCompare}
+            disabled={
+              source1Accounts.length === 0 ||
+              source2Accounts.length === 0 ||
+              isLoading
+            }
+          >
+            {isLoading ? "Processing..." : "Compare Data"}
+          </button>
+
+          {/* <button
+            className="bg-blue-600 hover:bg-blue-700 text-white py-2 px-6 rounded-md text-sm font-medium transition"
+            onClick={handleCompare}
             disabled={source1Accounts.length === 0 || source2Accounts.length === 0}
           >
             Compare Data
-          </button>
+          </button> */}
         </div>
       </div>
     </div>

@@ -6,6 +6,7 @@ import ExecInput from './ExecInput'
 import AccountManager from './AccountManager'
 import Home from './Home'
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Home_Designed from './Home_Designed'
 
 function App() {
   return (

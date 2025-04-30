@@ -369,7 +369,7 @@ def get_detailed_comparison(source1, source2, conn1, conn2, table_name1, table_n
                         # if hasattr(val2, 'hex'):
                         #     val2 = val2.hex().upper()
                         
-                        # Convert to strings for comparison
+                        # casting to string for comparison
                         # val1_str = str(val1).strip()
                         # val2_str = str(val2).strip()
                         
@@ -379,7 +379,6 @@ def get_detailed_comparison(source1, source2, conn1, conn2, table_name1, table_n
                     elif (val1 is None and val2 is not None) or (val1 is not None and val2 is None):
                         different_fields.append(col1)
                 
-                # Add to results if there are differences
                 if different_fields:
                     all_detailed_results.append({
                         "id": id_val,
