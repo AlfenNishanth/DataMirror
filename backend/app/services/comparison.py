@@ -6,8 +6,22 @@ from app.services.utils import (
     get_detailed_comparison,
     analyze_data_differences,
     get_columns_for_source,
-    get_common_columns  
-)
+    get_common_columns,
+    compare_hash_values  
+)   
+from config import chunk_size, batch_size, col_level_compare, file_sample_size
+
+import snowflake.connector
+from hdbcli import dbapi
+import hashlib
+import unicodedata
+import random
+import sys
+import time
+import math
+import logging
+from typing import List, Dict, Tuple, Set, Any, Optional
+import json
 
 
 def main_comparison(source1, source2, conn1, conn2, table_name1,table_name2, schema_name1, schema_name2, id_field1, id_field2, col_level_compare=False):

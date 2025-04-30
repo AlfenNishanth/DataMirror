@@ -2,6 +2,17 @@ import time
 import snowflake.connector
 from hdbcli import dbapi
 
+import hashlib
+import unicodedata
+import random
+import sys
+import time
+import math
+import logging
+from typing import List, Dict, Tuple, Set, Any, Optional
+import json
+
+
 def connect_to_hana(address: str, port: int, user: str, password: str):
     try:
         conn = dbapi.connect(
@@ -17,8 +28,7 @@ def connect_to_hana(address: str, port: int, user: str, password: str):
         raise
 
 def connect_to_snowflake(user: str, password: str, account: str,
-                        warehouse: str, database: str,
-                        schema: str, role: str):
+                        warehouse: str, database: str, role: str):
     try:
         conn_params = {
             "user": user,
@@ -26,7 +36,7 @@ def connect_to_snowflake(user: str, password: str, account: str,
             "account": account,
             "warehouse": warehouse,
             "database": database,
-            "schema": schema,
+            # "schema": schema,
             "role": role
         }
                     
@@ -39,8 +49,9 @@ def connect_to_snowflake(user: str, password: str, account: str,
 
 
 def connect_to_snowflake_sso(user: str, password: str, account: str,
-                        warehouse: str, database: str,
-                        schema: str, role: str, url:str):
+                        warehouse: str, database: str,role: str):
+                         
+    url='https://illumina.okta.com/sso'
     try:
         conn_params = {
             "user": user,
@@ -48,7 +59,7 @@ def connect_to_snowflake_sso(user: str, password: str, account: str,
             "account": account,
             "warehouse": warehouse,
             "database": database,
-            "schema": schema,
+            # "schema": schema,
             "role": role,
             "authenticator":"externalbrowser", 
             "client_session_keep_alive":False,

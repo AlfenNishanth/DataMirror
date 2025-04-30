@@ -50,7 +50,6 @@ export default function Home() {
       return;
     }
 
-    // Get values from form fields based on comparison type
     let tableInfo = {};
 
     if (comparisonType === "primaryKey" || comparisonType === "columnLevel") {
@@ -109,12 +108,17 @@ export default function Home() {
       };
     }
 
+
+    const source2Accountsso = {
+      ...source2Account,
+      sso: true,
+    };
     // Build the payload
     const payload = {
       source1: source1Type.toUpperCase(),
       source1_connection: source1Account,
       source2: source2Type.toUpperCase(),
-      source2_connection: source2Account,
+      source2_connection: source2Accountsso,
       table_info: tableInfo,
       comparison_type: comparisonType,
     };

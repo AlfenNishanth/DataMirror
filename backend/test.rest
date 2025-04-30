@@ -1,0 +1,34 @@
+### 
+POST http://localhost:5000/api/compare
+Content-Type: application/json
+
+{
+  "source1": "HANA",
+  "source1_connection": {
+    "address": "analyticsdev.illumina.com",
+    "port": 30041,
+    "user": "anishanth",
+    "password": "Ibm@032025"
+  },
+  "source2": "SNOWFLAKE",
+  "source2_connection": {
+    "user": "anishanth@illumina.com",
+    "password": "IBM@032025",
+    "account": "illumina",
+    "warehouse": "WH_ENTERPRISE_DL_DEV",
+    "database": "DB_ENTERPRISE_DL_DEV",
+    "schema": "",
+    "role": "ENT_DL_ADMIN_DEV",
+    "sso": true
+  },
+  "table_info": {
+    "schema_name1": "ANISHANTH",
+    "table_name1": "EMPLOYEE4",
+    "id_field1": "EMPID",
+    "schema_name2": "ILMN_SFDC",
+    "table_name2": "TST_ALFEN",
+    "id_field2": "EMPID",
+    "column_level_comparison": true
+  },
+  "comparison_type": "primaryKey"
+}

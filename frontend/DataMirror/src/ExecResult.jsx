@@ -1,6 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 
-export default function ExecResult() {
+export default function ExecResult(result) {
+
+  const location = useLocation();
+
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -12,6 +16,16 @@ export default function ExecResult() {
   
   useEffect(() => {
     try {
+      if (location.state && location.state.result) {
+        console.log('useLoc is available')
+        setData(location.state.result);
+        console.log(data);
+        const now = new Date();
+        setTimestamp(now.toLocaleString());
+        setLoading(false);
+      } 
+      else{
+       console.warn("No result data found in location state, using sample data");
       const sampleData = {
         "total_in_system1": 20,
         "total_in_system2": 21,
@@ -65,7 +79,7 @@ export default function ExecResult() {
                         "SALARY"
                     ],
                     "source1_data": {
-                        "ADDRESS": "123 Main St, City",
+                        "ADDRESS": "SAMPLE 123 Main St, City",
                         "BIRTHDATE": "1985-05-15",
                         "DEPARTMENT": "Sales",
                         "DESIGNATION": "PROMOTED",
@@ -76,7 +90,7 @@ export default function ExecResult() {
                         "SALARY": "100000"
                     },
                     "source2_data": {
-                        "ADDRESS": "123 Main St, City",
+                        "ADDRESS": " SAMPLE 123 Main St, City",
                         "BIRTHDATE": "1985-05-15",
                         "DEPARTMENT": "Sales",
                         "DESIGNATION": "Manager",
@@ -93,7 +107,7 @@ export default function ExecResult() {
                         "DESIGNATION"
                     ],
                     "source1_data": {
-                        "ADDRESS": "456 Elm St, Town",
+                        "ADDRESS": "SAMPLE 456 Elm St, Town",
                         "BIRTHDATE": "1990-08-22",
                         "DEPARTMENT": "Marketing",
                         "DESIGNATION": "PROMOTED",
@@ -104,7 +118,7 @@ export default function ExecResult() {
                         "SALARY": "60000"
                     },
                     "source2_data": {
-                        "ADDRESS": "456 Elm St, Town",
+                        "ADDRESS": " SAMPLE 456 Elm St, Town",
                         "BIRTHDATE": "1990-08-22",
                         "DEPARTMENT": "Marketing",
                         "DESIGNATION": "Supervisor",
@@ -120,9 +134,12 @@ export default function ExecResult() {
       };
       
       setData(sampleData);
+      console.log('sampleData - ');
+      console.log(data);
       const now = new Date();
       setTimestamp(now.toLocaleString());
       setLoading(false);
+    }
     } catch (err) {
       setError('Failed to load comparison data');
       setLoading(false);

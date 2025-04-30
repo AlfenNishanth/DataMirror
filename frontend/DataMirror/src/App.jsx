@@ -14,7 +14,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/manage-accounts" element={<AccountManager />} />
-        <Route path="/result" element={<ExecResult />} />
+        <Route path="/results" element={<ExecResult />} />
       </Routes>
     </Router>
   );

@@ -13,6 +13,8 @@ def compare_tables():
     try:
         data = request.get_json()
         
+        print(str(data))
+
         source1 = data.get('source1')
         source1_conn_data = data.get('source1_connection')
 
@@ -38,7 +40,7 @@ def compare_tables():
                     source1_conn_data.get('database'),
                     # source1_conn_data.get('schema'),
                     source1_conn_data.get('role'),
-                    source1_conn_data.get('url')
+                    # source1_conn_data.get('url')
                 )
             else:
                 conn1 = connect_to_snowflake(
@@ -68,7 +70,7 @@ def compare_tables():
                     source2_conn_data.get('database'),
                     # source2_conn_data.get('schema'),
                     source2_conn_data.get('role'),
-                    source2_conn_data.get('url')
+                    # source2_conn_data.get('url')
                 )
             else:
                 conn2 = connect_to_snowflake(

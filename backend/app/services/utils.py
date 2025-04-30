@@ -1,3 +1,19 @@
+from config import chunk_size, batch_size, file_sample_size
+
+
+import snowflake.connector
+from hdbcli import dbapi
+import hashlib
+import unicodedata
+import random
+import sys
+import time
+import math
+import logging
+from typing import List, Dict, Tuple, Set, Any, Optional
+import json
+
+
 def get_columns_for_source(conn, schema_name, table_name, id_column, source):
 
     if source.lower() == "hana":
@@ -12,7 +28,7 @@ def get_columns_for_source(conn, schema_name, table_name, id_column, source):
         # with open("COL_query.txt", "w") as f:
         #     f.write(query)
     
-    elif source.lower() == "sf":
+    elif source.lower() == "snowflake":
         query = f"""
             SELECT COLUMN_NAME
             FROM INFORMATION_SCHEMA.COLUMNS
@@ -60,7 +76,7 @@ def get_column_types(conn, schema_name, table_name, columns, source):
               AND TABLE_NAME = '{table_name}'
               AND COLUMN_NAME IN ({', '.join([f"'{col}'" for col in columns])})
         """
-    elif source.lower() == "sf":
+    elif source.lower() == "snowflake":
         query = f"""
             SELECT COLUMN_NAME, DATA_TYPE
             FROM INFORMATION_SCHEMA.COLUMNS
@@ -95,7 +111,7 @@ def generate_hash_query(source, id_field, column_names, table_name, schema_name)
 
         return query
 
-    elif source.lower() == "sf":
+    elif source.lower() == "snowflake":
         concat_parts = []
         for col in column_names:
             # concat_parts.append(f'COALESCE("{col}", \'\')')
@@ -110,9 +126,9 @@ def generate_hash_query(source, id_field, column_names, table_name, schema_name)
         return query
 
     else:
-        raise ValueError("Invalid source specified. Use 'HANA' or 'SF'.")
+        raise ValueError("Invalid source specified. Use 'HANA' or 'SNOWFLAKE'.")
 
-def generate_hash_query_chunked(source, id_field, column_names, table_name, schema_name, chunk_size):
+def generate_hash_query_chunked(source, id_field, column_names, table_name, schema_name, chunk_size=10000):
     # if len(column_names) <= chunk_size:
     #     return generate_hash_query(source, id_field, column_names, table_name, schema_name)
     
@@ -141,7 +157,7 @@ def generate_hash_query_chunked(source, id_field, column_names, table_name, sche
         
         return outer_query
         
-    elif source.lower() == "sf":
+    elif source.lower() == "snowflake":
         hash_columns = []
         
         for i in range(num_chunks):
@@ -165,7 +181,7 @@ def generate_hash_query_chunked(source, id_field, column_names, table_name, sche
         return outer_query
     
     else:
-        raise ValueError("Invalid source specified. Use 'HANA' or 'SF'.")
+        raise ValueError("Invalid source specified. Use 'HANA' or 'SNOWFLAKE'.")
 
 
 def get_hash_values(source, conn, query, is_string):
@@ -180,7 +196,7 @@ def get_hash_values(source, conn, query, is_string):
         if source.lower() == 'hana':
             return {row[0]: row[1].hex().upper() if row[1] else None for row in result}
 
-        elif source.lower() == 'sf':
+        elif source.lower() == 'snowflake':
             return {row[0]: row[1] for row in result}
 
     # return hash_map
