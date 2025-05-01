@@ -13,3 +13,19 @@ export const compareTables = async (payload) => {
     throw error.response?.data || { error: 'Unknown error occurred' };
   }
 };
+
+export const fetchComparisonResults = async (filePath) => {
+  try {
+    const response = await fetch(filePath);
+    
+    if (!response.ok) {
+      throw new Error(`Failed to fetch results file: ${response.status} ${response.statusText}`);
+    }
+    
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error fetching comparison results:', error);
+    throw error;
+  }
+};

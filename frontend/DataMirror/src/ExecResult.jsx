@@ -13,15 +13,28 @@ export default function ExecResult() {
   const [viewMode, setViewMode] = useState('mismatches'); // 'mismatches' or 'missing'
   
   useEffect(() => {
-    try {
-      if (location.state && location.state.result) {
-        console.log('useLoc is available')
-        setData(location.state.result);
-        console.log(data);
-        const now = new Date();
-        setTimestamp(now.toLocaleString());
-        setLoading(false);
-      } 
+    // try {
+    //   if (location.state && location.state.result) {
+    //     console.log('useLoc is available')
+    //     setData(location.state.result);
+    //     console.log(data);
+    //     const now = new Date();
+    //     setTimestamp(now.toLocaleString());
+    //     setLoading(false);
+    //   } 
+    const loadData = async () => {
+      try {
+        if (location.state && location.state.filePath) {
+          console.log('File path available:', location.state.filePath);
+          
+          // Fetch the actual data from the file
+          const resultData = await fetchComparisonResults(location.state.filePath);
+          
+          setData(resultData);
+          const now = new Date();
+          setTimestamp(now.toLocaleString());
+          setLoading(false);
+        }
       else{
        console.warn("No result data found in location state, using sample data");
       const sampleData = {
@@ -142,6 +155,7 @@ export default function ExecResult() {
       setError('Failed to load comparison data');
       setLoading(false);
     }
+  }
   }, []);
   
   if (loading) {

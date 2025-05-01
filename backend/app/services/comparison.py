@@ -22,6 +22,7 @@ import math
 import logging
 from typing import List, Dict, Tuple, Set, Any, Optional
 import json
+import os
 
 
 def main_comparison(source1, source2, conn1, conn2, table_name1,table_name2, schema_name1, schema_name2, id_field1, id_field2, col_level_compare=False):
@@ -146,14 +147,33 @@ def main_comparison(source1, source2, conn1, conn2, table_name1,table_name2, sch
     print(f"  Total differences: {results['total_differences']}")
     print(f"  Total time: {results['execution_time']['total']:.2f} seconds")
     
-    file_name = f"result - {table_name1} - {time.strftime('%Y-%m-%d_%H-%M-%S', time.localtime(time.time()))}.json"
+    # file_name = f"result - {table_name1} - {time.strftime('%Y-%m-%d_%H-%M-%S', time.localtime(time.time()))}.json"
 
-    with open(file_name, 'w', encoding='utf-8') as f:
-        # f.write(str(results).replace('\'','"'))
+    # with open(file_name, 'w', encoding='utf-8') as f:
+    #     # f.write(str(results).replace('\'','"'))
+    #     f.write(json.dumps(results, default=str))
+    # print("\n\n------------------ \nfile written to - " + file_name)
+
+    # return results
+    
+    output_dir = os.path.join(os.getcwd(), 'static', 'comparison_results')
+    os.makedirs(output_dir, exist_ok=True)
+    
+    # Generate filename with timestamp
+    timestamp = time.strftime('%Y-%m-%d_%H-%M-%S', time.localtime(time.time()))
+    filename = f"{table_name1}_comparison_{timestamp}.json"
+    filepath = os.path.join(output_dir, filename)
+    
+    # Save the results to the file
+    with open(filepath, 'w', encoding='utf-8') as f:
         f.write(json.dumps(results, default=str))
-    print("\n\n------------------ \nfile written to - " + file_name)
-
-    return results
+    
+    print(f"\n\n------------------ \nfile written to - {filepath}")
+    
+    # Return a relative path that can be used from the Flask application
+    relative_path = os.path.join('static', 'comparison_results', filename)
+    
+    return relative_path
         
     # except Exception as e:
     #     print(f"Error during comparison of {table_name1}: {str(e)}")
@@ -233,4 +253,3 @@ def perform_comparison(source1, source2, conn1, conn2, table_name1,
         result['detailed_comparison'] = detailed_results
     
     return result
-
