@@ -108,7 +108,6 @@ export default function Home() {
       };
     }
 
-
     const source2Accountsso = {
       ...source2Account,
       sso: true,
@@ -127,14 +126,14 @@ export default function Home() {
       // Show loading indicator or disable button
       setIsLoading(true);
 
-      // Call the API
-      const result = await compareTables(payload);
+      // const result = await compareTables(payload);
+      // console.log("Comparison result:", result);
+      // navigate("/results", { state: { result } });
 
-      // Process the results
-      console.log("Comparison result:", result);
+      const filePath = await compareTables(payload);
+      console.log("Comparison result file path:", filePath);
+      navigate("/results", { state: { filePath } });
 
-      // Navigate to results page with the data
-      navigate("/results", { state: { result } });
     } catch (error) {
       console.error("Error comparing data:", error);
       alert(`Error: ${error.error || "An unknown error occurred"}`);
