@@ -143,6 +143,11 @@ export default function ExecResult() {
       setLoading(false);
     }
   }, []);
+
+  
+useEffect(() => {
+  console.log('Updated data:', data);
+}, [data]);
   
   if (loading) {
     return (

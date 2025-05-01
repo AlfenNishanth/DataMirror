@@ -88,7 +88,7 @@ def compare_tables():
             source2, 
             conn1, 
             conn2,
-            table_info.get('table_name1'), 
+            table_info.get('table_name1'),
             table_info.get('table_name2'),
             table_info.get('schema_name1'), 
             table_info.get('schema_name2'),
