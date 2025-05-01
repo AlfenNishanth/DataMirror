@@ -36,7 +36,7 @@ export default function ExecResult() {
           setLoading(false);
         }
       else{
-       console.warn("No result data found in location state, using sample data");
+      console.warn("No result data found in location state, using sample data");
       const sampleData = {
         "total_in_system1": 20,
         "total_in_system2": 21,
