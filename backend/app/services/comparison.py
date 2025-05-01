@@ -146,6 +146,13 @@ def main_comparison(source1, source2, conn1, conn2, table_name1,table_name2, sch
     print(f"  Total differences: {results['total_differences']}")
     print(f"  Total time: {results['execution_time']['total']:.2f} seconds")
     
+    file_name = f"result - {table_name1} - {time.strftime('%Y-%m-%d_%H-%M-%S', time.localtime(time.time()))}.json"
+
+    with open(file_name, 'w', encoding='utf-8') as f:
+        # f.write(str(results).replace('\'','"'))
+        f.write(json.dumps(results, default=str))
+    print("\n\n------------------ \nfile written to - " + file_name)
+
     return results
         
     # except Exception as e:

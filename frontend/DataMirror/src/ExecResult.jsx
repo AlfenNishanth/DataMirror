@@ -1,8 +1,9 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
+import { SystemSourceCard } from './components/SystemSourceCard';
+import { ComparisonTables } from './components/ComparisonTables';
 
-export default function ExecResult(result) {
-
+export default function ExecResult() {
   const location = useLocation();
 
   const [data, setData] = useState(null);
@@ -10,9 +11,6 @@ export default function ExecResult(result) {
   const [error, setError] = useState(null);
   const [timestamp, setTimestamp] = useState('');
   const [viewMode, setViewMode] = useState('mismatches'); // 'mismatches' or 'missing'
-  
-  const leftTableRef = useRef(null);
-  const rightTableRef = useRef(null);
   
   useEffect(() => {
     try {
@@ -146,34 +144,6 @@ export default function ExecResult(result) {
     }
   }, []);
   
-  // Synchronize scrolling between the two tables
-  useEffect(() => {
-    if (viewMode !== 'mismatches') return;
-    
-    const leftTable = leftTableRef.current;
-    const rightTable = rightTableRef.current;
-    
-    if (!leftTable || !rightTable) return;
-    
-    const handleLeftScroll = () => {
-      rightTable.scrollTop = leftTable.scrollTop;
-      rightTable.scrollLeft = leftTable.scrollLeft;
-    };
-    
-    const handleRightScroll = () => {
-      leftTable.scrollTop = rightTable.scrollTop;
-      leftTable.scrollLeft = rightTable.scrollLeft;
-    };
-    
-    leftTable.addEventListener('scroll', handleLeftScroll);
-    rightTable.addEventListener('scroll', handleRightScroll);
-    
-    return () => {
-      leftTable.removeEventListener('scroll', handleLeftScroll);
-      rightTable.removeEventListener('scroll', handleRightScroll);
-    };
-  }, [data, viewMode]);
-  
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen">
@@ -198,10 +168,6 @@ export default function ExecResult(result) {
   
   if (!data) return null;
   
-  const hasMissingRecords = 
-    (data.missing_in_system1 && data.missing_in_system1.length > 0) || 
-    (data.missing_in_system2 && data.missing_in_system2.length > 0);
-  
   return (
     <div className="bg-gray-50 min-h-screen py-6 px-4">
       <div className="max-w-7xl mx-auto">
@@ -217,75 +183,14 @@ export default function ExecResult(result) {
           </div>
         </header>
         
-
-
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          {/* Left Side - Source 1 */}
-          <div className="bg-white rounded-lg shadow p-6">
-            <div className="mb-4">
-              <h2 className="text-lg font-semibold text-blue-700">
-                {data.source_system_1} - {data.schema_name_1}.{data.table_name1}
-              </h2>
-              <p className="text-sm text-gray-500">Source System 1</p>
-            </div>
-            
-            <div className="grid grid-cols-2 gap-4">
-              <div className="bg-blue-50 p-3 rounded-md">
-                <p className="text-sm text-gray-600">Total Records</p>
-                <p className="text-xl font-semibold">{data.total_in_system1}</p>
-              </div>
-              
-              <div className="bg-blue-50 p-3 rounded-md">
-                <p className="text-sm text-gray-600">ID Field</p>
-                <p className="text-xl font-semibold">{data.id_field1}</p>
-              </div>
-              
-              <div className="bg-blue-50 p-3 rounded-md">
-                <p className="text-sm text-gray-600">Missing Records</p>
-                <p className="text-xl font-semibold">{data.missing_in_system1.length}</p>
-              </div>
-              
-              <div className="bg-blue-50 p-3 rounded-md">
-                <p className="text-sm text-gray-600">Query Time</p>
-                <p className="text-xl font-semibold">{data.execution_time.system1_query.toFixed(2)}s</p>
-              </div>
-            </div>
-          </div>
+          {/* Source System 1 Card */}
+          <SystemSourceCard data={data} systemNumber={1} />
           
-          {/* Right Side - Source 2 */}
-          <div className="bg-white rounded-lg shadow p-6">
-            <div className="mb-4">
-              <h2 className="text-lg font-semibold text-green-700">
-                {data.source_system_2} - {data.schema_name_2}.{data.table_name2}
-              </h2>
-              <p className="text-sm text-gray-500">Source System 2</p>
-            </div>
-            
-            <div className="grid grid-cols-2 gap-4">
-              <div className="bg-green-50 p-3 rounded-md">
-                <p className="text-sm text-gray-600">Total Records</p>
-                <p className="text-xl font-semibold">{data.total_in_system2}</p>
-              </div>
-              
-              <div className="bg-green-50 p-3 rounded-md">
-                <p className="text-sm text-gray-600">ID Field</p>
-                <p className="text-xl font-semibold">{data.id_field2}</p>
-              </div>
-              
-              <div className="bg-green-50 p-3 rounded-md">
-                <p className="text-sm text-gray-600">Missing Records</p>
-                <p className="text-xl font-semibold">{data.missing_in_system2.length}</p>
-              </div>
-              
-              <div className="bg-green-50 p-3 rounded-md">
-                <p className="text-sm text-gray-600">Query Time</p>
-                <p className="text-xl font-semibold">{data.execution_time.system2_query.toFixed(2)}s</p>
-              </div>
-            </div>
-          </div>
+          {/* Source System 2 Card */}
+          <SystemSourceCard data={data} systemNumber={2} />
         </div>
 
-        
         {/* Comparison Results with Toggle Buttons */}
         <div className="bg-white rounded-lg shadow-sm p-4 mb-6">
           <div className="flex justify-between items-center mb-3">
@@ -330,170 +235,8 @@ export default function ExecResult(result) {
           </div>
         </div>
         
-        {viewMode === 'mismatches' ? (
-          <div className="flex flex-col">
-            <h2 className="text-md font-semibold mb-3">Detailed Record Comparison</h2>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              {/* Left Table - Source 1 */}
-              <div className="border border-gray-200 rounded-lg overflow-hidden shadow-sm">
-                <div className="bg-blue-50 px-3 py-2 font-medium text-sm">
-                  {data.source_system_1} - {data.table_name1}
-                </div>
-                <div 
-                  ref={leftTableRef} 
-                  className="overflow-auto"
-                  style={{ maxHeight: "500px" }}
-                >
-                  <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50 sticky top-0">
-                      <tr>
-                        <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider sticky left-0 bg-gray-50">
-                          {data.id_field1}
-                        </th>
-                        {data.detailed_comparison.column_details.common_columns.map((column) => (
-                          <th 
-                            key={column} 
-                            className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                          >
-                            {column}
-                          </th>
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                      {data.detailed_comparison.mismatched_records.map((record) => (
-                        <tr key={record.id}>
-                          <td className="px-3 py-2 whitespace-nowrap text-sm font-medium text-gray-900 sticky left-0 bg-white">
-                            {record.id}
-                          </td>
-                          {data.detailed_comparison.column_details.common_columns.map((column) => (
-                            <td 
-                              key={column} 
-                              className={`px-3 py-2 whitespace-nowrap text-sm text-gray-500 ${
-                                record.different_fields.includes(column) ? 'bg-red-100' : ''
-                              }`}
-                            >
-                              {record.source1_data[column]}
-                            </td>
-                          ))}
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-              
-              {/* Right Table - Source 2 */}
-              <div className="border border-gray-200 rounded-lg overflow-hidden shadow-sm">
-                <div className="bg-green-50 px-3 py-2 font-medium text-sm">
-                  {data.source_system_2} - {data.table_name2}
-                </div>
-                <div 
-                  ref={rightTableRef} 
-                  className="overflow-auto"
-                  style={{ maxHeight: "500px" }}
-                >
-                  <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50 sticky top-0">
-                      <tr>
-                        <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider sticky left-0 bg-gray-50">
-                          {data.id_field2}
-                        </th>
-                        {data.detailed_comparison.column_details.common_columns.map((column) => (
-                          <th 
-                            key={column} 
-                            className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                          >
-                            {column}
-                          </th>
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                      {data.detailed_comparison.mismatched_records.map((record) => (
-                        <tr key={record.id}>
-                          <td className="px-3 py-2 whitespace-nowrap text-sm font-medium text-gray-900 sticky left-0 bg-white">
-                            {record.id}
-                          </td>
-                          {data.detailed_comparison.column_details.common_columns.map((column) => (
-                            <td 
-                              key={column} 
-                              className={`px-3 py-2 whitespace-nowrap text-sm text-gray-500 ${
-                                record.different_fields.includes(column) ? 'bg-red-100' : ''
-                              }`}
-                            >
-                              {record.source2_data[column]}
-                            </td>
-                          ))}
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-            
-            {/* Legend */}
-            <div className="mt-3 flex items-center text-xs">
-              <div className="w-3 h-3 bg-red-100 mr-2"></div>
-              <span className="text-gray-600">Highlighted cells indicate mismatched values</span>
-            </div>
-          </div>
-        ) : (
-          // Missing Records View
-          <div className="flex flex-col">
-            <h2 className="text-md font-semibold mb-3">Missing Records</h2>
-            
-            {!hasMissingRecords ? (
-              <div className="bg-gray-50 p-4 rounded-lg text-center text-sm text-gray-500">
-                No missing records found in either system
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                {/* Missing in System 1 */}
-                <div className="border border-gray-200 rounded-lg overflow-hidden shadow-sm">
-                  <div className="bg-blue-50 px-3 py-2 font-medium text-sm">
-                    Missing Records in {data.source_system_1}
-                  </div>
-                  <div className="p-3">
-                    {data.missing_in_system1.length === 0 ? (
-                      <p className="text-sm text-gray-500">No missing records</p>
-                    ) : (
-                      <ol className="list-disc list-inside text-sm text-gray-700 space-y-1">
-                        {data.missing_in_system1.map((id) => (
-                          <li key={id} className="px-2 py-1 bg-gray-50 rounded">
-                            {id}
-                          </li>
-                        ))}
-                      </ol>
-                    )}
-                  </div>
-                </div>
-                
-                {/* Missing in System 2 */}
-                <div className="border border-gray-200 rounded-lg overflow-hidden shadow-sm">
-                  <div className="bg-green-50 px-3 py-2 font-medium text-sm">
-                    Missing Records in {data.source_system_2}
-                  </div>
-                  <div className="p-3">
-                    {data.missing_in_system2.length === 0 ? (
-                      <p className="text-sm text-gray-500">No missing records</p>
-                    ) : (
-                      <ul className="list-disc list-inside text-sm text-gray-700 space-y-1">
-                        {data.missing_in_system2.map((id) => (
-                          <li key={id} className="px-2 py-1 bg-gray-50 rounded">
-                            ID: {id}
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-        )}
+        {/* Tables Component */}
+        <ComparisonTables data={data} viewMode={viewMode} />
       </div>
     </div>
   );
