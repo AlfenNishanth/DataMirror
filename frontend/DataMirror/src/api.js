@@ -16,8 +16,8 @@ export const compareTables = async (payload) => {
 
 export const fetchComparisonResults = async (filePath) => {
   try {
-    const response = await fetch(filePath);
-    
+    full_path = BASE_URL + "/" +filePath.replace(/\\/g, '/'); 
+    const response = await fetch(full_path);    
     if (!response.ok) {
       throw new Error(`Failed to fetch results file: ${response.status} ${response.statusText}`);
     }
