@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, send_from_directory
 from app.services.comparison import main_comparison
 from app.services.connectors import (
     connect_to_hana, 
@@ -102,10 +102,56 @@ def compare_tables():
         if hasattr(conn2, 'close'):
             conn2.close()
             
+        print(jsonify(result))
         return jsonify(result)
     
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+@api_bp.route('/result/<filename>', methods=['GET'])
+def get_result(filename):
+    output_dir = os.path.join(os.getcwd(), 'static', 'comparison_results')
+    file_path = os.path.join(output_dir, filename)
+    
+    if not os.path.exists(file_path):
+        return jsonify({"error": "File not found"}), 404
+        
+    # Option 1: Stream the file directly
+    return send_from_directory(os.path.join('static', 'comparison_results'), filename)
+         
+
+@api_bp.route('/execution-history', methods=['GET'])
+def get_execution_history():
+    output_dir = os.path.join(os.getcwd(), 'static', 'comparison_results')
+    if not os.path.exists(output_dir):
+        return jsonify({'error': 'No execution history found'}), 404
+    
+    files = os.listdir(output_dir)
+    json_files = [f for f in files if f.endswith('.json')]
+    json_files.sort(key=lambda x: os.path.getctime(os.path.join(output_dir, x)), reverse=True)
+
+    result = []
+    for file in json_files:
+        file_path = os.path.join(output_dir, file)
+        file_stats = os.stat(file_path)
+        
+        # Extract table name from filename (assuming format: tablename_comparison_timestamp.json)
+        table_name = file.split('_comparison_')[0] if '_comparison_' in file else "Unknown"
+        
+        # Create timestamp from file creation time
+        timestamp = time.strftime('%Y-%m-%d %H:%M:%S', 
+                                 time.localtime(file_stats.st_ctime))
+        
+        result.append({
+            "filename": file,
+            "table_name": table_name,
+            "created_at": timestamp,
+            "size": file_stats.st_size,
+            "url": f"/api/static/comparison_results/{file}"
+        })
+    
+    return jsonify(result)
+
 
 @api_bp.route('/health', methods=['GET'])
 def health_check():
