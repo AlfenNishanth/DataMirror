@@ -17,13 +17,7 @@ export const compareTables = async (payload) => {
 
 export const fetchComparisonResults = async (filename) => {
   try {
-    const response = await fetch(`${BASE_URL}/result/${filename}`);
-    
-    if (!response.ok) {
-      throw new Error(`Failed to fetch results file: ${response.status} ${response.statusText}`);
-    }
-    
-    const data = await response.json();
+    const response = await axios.get(`${BASE_URL}/result/${filename}`);
     return data;
   } catch (error) {
     console.error('Error fetching comparison results:', error);
@@ -33,12 +27,7 @@ export const fetchComparisonResults = async (filename) => {
 
 export const fetchExecutionHistory = async () => {
   try {
-    const response = await fetch(`${BASE_URL}/execution-history`);
-    
-    if (!response.ok) {
-      throw new Error(`Failed to fetch execution history: ${response.status} ${response.statusText}`);
-    }
-    
+    const response = await axios.get(`${BASE_URL}/execution-history`);
     const data = await response.json();
     return data;
   } catch (error) {
