@@ -136,7 +136,9 @@ export default function Home() {
       // navigate("/results", { state: { result } });
 
       if (comparisonType === "columnLevel") {
-        const filePath = await compareTables(payload);        
+        const filePath = await compareTables(payload);
+        console.log("Comparison result file path:", filePath);
+        navigate("/results", { state: { filePath } });          
       }
       else if (comparisonType === "primaryKey") {
 
@@ -144,10 +146,11 @@ export default function Home() {
       else if (comparisonType === "tableStructure") {
       }
       else if (comparisonType === "sqlQuery") {
-        const filePath = await compareSqlQueries(payload);        
+        const filePath = await compareSqlQueries(payload);
+        console.log("Comparison result file path:", filePath);
+        navigate("/results", { state: { filePath } });
+          
       }
-      console.log("Comparison result file path:", filePath);
-      navigate("/results", { state: { filePath } });
     } catch (error) {
       console.error("Error comparing data:", error);
       alert(`Error: ${error.error || "An unknown error occurred"}`);
