@@ -14,6 +14,17 @@ export const compareTables = async (payload) => {
   }
 };
 
+export const compareSqlQueries = async (payload) => {
+  console.log('Payload:', payload);
+try {
+  const response = await axios.post(`${BASE_URL}/compare-queries`, payload);
+  return response.data;
+} catch (error) {
+  console.error('API error:', error);
+  throw error.response?.data || { error: 'Unknown error occurred' };
+}
+};
+
 
 export const fetchComparisonResults = async (filename) => {
   try {
@@ -24,6 +35,7 @@ export const fetchComparisonResults = async (filename) => {
     throw error;
   }
 };
+
 
 export const fetchExecutionHistory = async () => {
   try {

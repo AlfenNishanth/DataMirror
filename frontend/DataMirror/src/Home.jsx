@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import ComparisonTypeSelector from "./components/ComparisonTypeSelector";
 import SourcePanel from "./components/SourcePanel";
-import { compareTables } from "./api";
+import { compareSqlQueries, compareTables } from "./api";
 export default function Home() {
   const navigate = useNavigate();
   const [comparisonType, setComparisonType] = useState("primaryKey");
@@ -116,7 +116,7 @@ export default function Home() {
       ...source2Account,
       sso: true,
     };
-    // Build the payload
+
     const payload = {
       source1: source1Type.toUpperCase(),
       source1_connection: source1Account,
@@ -126,6 +126,7 @@ export default function Home() {
       comparison_type: comparisonType,
     };
 
+    console.log("Payload:", payload);
     try {
       // Show loading indicator or disable button
       setIsLoading(true);
@@ -143,7 +144,7 @@ export default function Home() {
       else if (comparisonType === "tableStructure") {
       }
       else if (comparisonType === "sqlQuery") {
-        
+        const filePath = await compareSqlQueries(payload);        
       }
       console.log("Comparison result file path:", filePath);
       navigate("/results", { state: { filePath } });
