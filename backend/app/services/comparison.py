@@ -7,7 +7,8 @@ from app.services.utils import (
     analyze_data_differences,
     get_columns_for_source,
     get_common_columns,
-    compare_hash_values  
+    compare_hash_values,
+    generate_hash_query_chunked  
 )   
 from config import chunk_size, batch_size, col_level_compare, file_sample_size
 
