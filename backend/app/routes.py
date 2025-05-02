@@ -110,51 +110,6 @@ def compare_tables():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-@api_bp.route('/result/<filename>', methods=['GET'])
-def get_result(filename):
-    print(filename)
-    output_dir = os.path.join(os.getcwd(), 'static', 'comparison_results')
-    file_path = os.path.join(output_dir, filename)
-    print(file_path)
-    if not os.path.exists(file_path):
-        return jsonify({"error": "File not found"}), 404
-    
-    # return send_from_directory(os.path.join('static', 'comparison_results'), filename)
-    return send_from_directory(output_dir, filename)
-     
-
-@api_bp.route('/execution-history', methods=['GET'])
-def get_execution_history():
-    output_dir = os.path.join(os.getcwd(), 'static', 'comparison_results')
-    if not os.path.exists(output_dir):
-        return jsonify({'error': 'No execution history found'}), 404
-    
-    files = os.listdir(output_dir)
-    json_files = [f for f in files if f.endswith('.json')]
-    json_files.sort(key=lambda x: os.path.getctime(os.path.join(output_dir, x)), reverse=True)
-
-    result = []
-    for file in json_files:
-        file_path = os.path.join(output_dir, file)
-        file_stats = os.stat(file_path)
-        
-        table_name = file.split('_comparison_')[0] if '_comparison_' in file else "Unknown"
-        
-        # Create timestamp from file creation time
-        timestamp = time.strftime('%Y-%m-%d %H:%M:%S', 
-                                 time.localtime(file_stats.st_ctime))
-        
-        result.append({
-            "filename": file,
-            "table_name": table_name,
-            "created_at": timestamp,
-            "size": file_stats.st_size,
-            "url": f"/api/static/comparison_results/{file}"
-        })
-    
-    return jsonify(result)
-
-
 @api_bp.route('/compare-queries', methods=['POST'])
 def compare_queries():
     try:
@@ -168,7 +123,7 @@ def compare_queries():
         source2 = data.get('source2')
         source2_conn_data = data.get('source2_connection')
 
-        query_info = data.get('query_info')
+        query_info = data.get('table_info')
         
         query1 = query_info.get('query1')
         query2 = query_info.get('query2')
@@ -253,6 +208,52 @@ def compare_queries():
     
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+
+@api_bp.route('/result/<filename>', methods=['GET'])
+def get_result(filename):
+    print(filename)
+    output_dir = os.path.join(os.getcwd(), 'static', 'comparison_results')
+    file_path = os.path.join(output_dir, filename)
+    print(file_path)
+    if not os.path.exists(file_path):
+        return jsonify({"error": "File not found"}), 404
+    
+    # return send_from_directory(os.path.join('static', 'comparison_results'), filename)
+    return send_from_directory(output_dir, filename)
+     
+
+@api_bp.route('/execution-history', methods=['GET'])
+def get_execution_history():
+    output_dir = os.path.join(os.getcwd(), 'static', 'comparison_results')
+    if not os.path.exists(output_dir):
+        return jsonify({'error': 'No execution history found'}), 404
+    
+    files = os.listdir(output_dir)
+    json_files = [f for f in files if f.endswith('.json')]
+    json_files.sort(key=lambda x: os.path.getctime(os.path.join(output_dir, x)), reverse=True)
+
+    result = []
+    for file in json_files:
+        file_path = os.path.join(output_dir, file)
+        file_stats = os.stat(file_path)
+        
+        table_name = file.split('_comparison_')[0] if '_comparison_' in file else "Unknown"
+        
+        # Create timestamp from file creation time
+        timestamp = time.strftime('%Y-%m-%d %H:%M:%S', 
+                                 time.localtime(file_stats.st_ctime))
+        
+        result.append({
+            "filename": file,
+            "table_name": table_name,
+            "created_at": timestamp,
+            "size": file_stats.st_size,
+            "url": f"/api/static/comparison_results/{file}"
+        })
+    
+    return jsonify(result)
+
 
 @api_bp.route('/health', methods=['GET'])
 def health_check():
