@@ -171,9 +171,9 @@ def main_comparison(source1, source2, conn1, conn2, table_name1,table_name2, sch
     print(f"\n\n------------------ \nfile written to - {filepath}")
     
     # Return a relative path that can be used from the Flask application
-    relative_path = os.path.join('static', 'comparison_results', filename)
+    # relative_path = os.path.join('static', 'comparison_results', filename)
     
-    return relative_path
+    return filename
         
     # except Exception as e:
     #     print(f"Error during comparison of {table_name1}: {str(e)}")

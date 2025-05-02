@@ -32,3 +32,6 @@ Content-Type: application/json
   },
   "comparison_type": "primaryKey"
 }
+
+###
+GET http://localhost:5000/api/execution-history

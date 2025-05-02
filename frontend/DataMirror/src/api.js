@@ -14,11 +14,17 @@ export const compareTables = async (payload) => {
   }
 };
 
-export const fetchComparisonResults = async (filePath) => {
+
+export const fetchComparisonResults = async (filename) => {
   try {
+<<<<<<< HEAD
     const full_path = BASE_URL + "/" +filePath.replace(/\\/g, '/'); 
     console.log(full_path)
     const response = await fetch(full_path);    
+=======
+    const response = await fetch(`${BASE_URL}/result/${filename}`);
+    
+>>>>>>> 0dcd66d27edd3fc1c5c7c600c5266938ba76e843
     if (!response.ok) {
       throw new Error(`Failed to fetch results file: ${response.status} ${response.statusText}`);
     }
@@ -27,6 +33,22 @@ export const fetchComparisonResults = async (filePath) => {
     return data;
   } catch (error) {
     console.error('Error fetching comparison results:', error);
+    throw error;
+  }
+};
+
+export const fetchExecutionHistory = async () => {
+  try {
+    const response = await fetch(`${BASE_URL}/execution-history`);
+    
+    if (!response.ok) {
+      throw new Error(`Failed to fetch execution history: ${response.status} ${response.statusText}`);
+    }
+    
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error fetching execution history:', error);
     throw error;
   }
 };

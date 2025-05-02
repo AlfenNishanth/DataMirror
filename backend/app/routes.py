@@ -5,6 +5,7 @@ from app.services.connectors import (
     connect_to_snowflake,
     connect_to_snowflake_sso
 )
+import os, time
 
 api_bp = Blueprint('api', __name__)
 
@@ -135,7 +136,6 @@ def get_execution_history():
         file_path = os.path.join(output_dir, file)
         file_stats = os.stat(file_path)
         
-        # Extract table name from filename (assuming format: tablename_comparison_timestamp.json)
         table_name = file.split('_comparison_')[0] if '_comparison_' in file else "Unknown"
         
         # Create timestamp from file creation time
