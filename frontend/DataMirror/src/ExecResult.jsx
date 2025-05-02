@@ -147,6 +147,8 @@ export default function ExecResult() {
             location.state.filePath
           );
 
+          console.log(resultData)
+
           setData(resultData);
           const now = new Date();
           setTimestamp(now.toLocaleString());

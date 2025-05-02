@@ -35,3 +35,6 @@ Content-Type: application/json
 
 ###
 GET http://localhost:5000/api/execution-history
+
+###
+GET http://localhost:5000/api/result/EMPLOYEE4_comparison_2025-05-02_04-27-42.json

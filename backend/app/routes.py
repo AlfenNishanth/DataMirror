@@ -111,15 +111,16 @@ def compare_tables():
 
 @api_bp.route('/result/<filename>', methods=['GET'])
 def get_result(filename):
+    print(filename)
     output_dir = os.path.join(os.getcwd(), 'static', 'comparison_results')
     file_path = os.path.join(output_dir, filename)
-    
+    print(file_path)
     if not os.path.exists(file_path):
         return jsonify({"error": "File not found"}), 404
-        
-    # Option 1: Stream the file directly
-    return send_from_directory(os.path.join('static', 'comparison_results'), filename)
-         
+    
+    # return send_from_directory(os.path.join('static', 'comparison_results'), filename)
+    return send_from_directory(output_dir, filename)
+     
 
 @api_bp.route('/execution-history', methods=['GET'])
 def get_execution_history():
