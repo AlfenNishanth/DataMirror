@@ -147,6 +147,19 @@ export default function SourcePanel({
 
       {comparisonType === "sqlQuery" && (
         <div>
+          <div>
+            <label
+              htmlFor={`source${sourceNumber}PrimaryKey`}
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              Primary Key:
+            </label>
+            <input
+              type="text"
+              id={`source${sourceNumber}PrimaryKey`}
+              className="w-full rounded border border-gray-300 p-2 text-sm"
+            />
+          </div>
           <label
             htmlFor={`source${sourceNumber}SQLQuery`}
             className="block text-sm font-medium text-gray-700 mb-1"

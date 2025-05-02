@@ -81,7 +81,6 @@ def main_comparison(source1, source2, conn1, conn2, table_name1,table_name2, sch
     results = compare_hash_values(sys1_hash_map, sys2_hash_map)
     compare_time = time.time() - compare_start
 
-
     results.update({
         "source_system_1" : source1,
         "source_system_2" : source2,

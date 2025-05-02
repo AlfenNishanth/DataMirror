@@ -96,6 +96,8 @@ export default function Home() {
     } else if (comparisonType === "sqlQuery") {
       const query1 = document.getElementById("source1SQLQuery").value;
       const query2 = document.getElementById("source2SQLQuery").value;
+      const id_field1 = document.getElementById("source1PrimaryKey").value;
+      const id_field2 = document.getElementById("source2PrimaryKey").value;
 
       if (!query1 || !query2) {
         alert("Please provide SQL queries for both sources");
@@ -105,6 +107,8 @@ export default function Home() {
       tableInfo = {
         query1: query1,
         query2: query2,
+        id_field1: id_field1,
+        id_field2: id_field2,
       };
     }
 
@@ -130,7 +134,17 @@ export default function Home() {
       // console.log("Comparison result:", result);
       // navigate("/results", { state: { result } });
 
-      const filePath = await compareTables(payload);
+      if (comparisonType === "columnLevel") {
+        const filePath = await compareTables(payload);        
+      }
+      else if (comparisonType === "primaryKey") {
+
+      }
+      else if (comparisonType === "tableStructure") {
+      }
+      else if (comparisonType === "sqlQuery") {
+        
+      }
       console.log("Comparison result file path:", filePath);
       navigate("/results", { state: { filePath } });
     } catch (error) {

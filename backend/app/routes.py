@@ -5,6 +5,7 @@ from app.services.connectors import (
     connect_to_snowflake,
     connect_to_snowflake_sso
 )
+from app.services.query_comparison import compare_query_results
 import os, time
 
 api_bp = Blueprint('api', __name__)
@@ -153,6 +154,105 @@ def get_execution_history():
     
     return jsonify(result)
 
+
+@api_bp.route('/compare-queries', methods=['POST'])
+def compare_queries():
+    try:
+        data = request.get_json()
+        
+        print(str(data))
+
+        source1 = data.get('source1')
+        source1_conn_data = data.get('source1_connection')
+
+        source2 = data.get('source2')
+        source2_conn_data = data.get('source2_connection')
+
+        query_info = data.get('query_info')
+        
+        query1 = query_info.get('query1')
+        query2 = query_info.get('query2')
+        
+        id_field1 = query_info.get('id_field1')
+        id_field2 = query_info.get('id_field2')
+        
+        column_level_compare = query_info.get('column_level_comparison', True)
+        
+        if source1.upper() == 'HANA':
+            conn1 = connect_to_hana(
+                source1_conn_data.get('address'),
+                source1_conn_data.get('port'),
+                source1_conn_data.get('user'),
+                source1_conn_data.get('password')
+            )
+        elif source1.upper() == 'SNOWFLAKE':
+            if source1_conn_data.get('sso', False):
+                conn1 = connect_to_snowflake_sso(
+                    source1_conn_data.get('user'),
+                    source1_conn_data.get('password'),
+                    source1_conn_data.get('account'),
+                    source1_conn_data.get('warehouse'),
+                    source1_conn_data.get('database'),
+                    source1_conn_data.get('role'),
+                )
+            else:
+                conn1 = connect_to_snowflake(
+                    source1_conn_data.get('user'),
+                    source1_conn_data.get('password'),
+                    source1_conn_data.get('account'),
+                    source1_conn_data.get('warehouse'),
+                    source1_conn_data.get('database'),
+                    source1_conn_data.get('role')
+                )
+        
+        if source2.upper() == 'HANA':
+            conn2 = connect_to_hana(
+                source2_conn_data.get('address'),
+                source2_conn_data.get('port'),
+                source2_conn_data.get('user'),
+                source2_conn_data.get('password')
+            )
+        elif source2.upper() == 'SNOWFLAKE':
+            if source2_conn_data.get('sso', False):
+                conn2 = connect_to_snowflake_sso(
+                    source2_conn_data.get('user'),
+                    source2_conn_data.get('password'),
+                    source2_conn_data.get('account'),
+                    source2_conn_data.get('warehouse'),
+                    source2_conn_data.get('database'),
+                    source2_conn_data.get('role'),
+                )
+            else:
+                conn2 = connect_to_snowflake(
+                    source2_conn_data.get('user'),
+                    source2_conn_data.get('password'),
+                    source2_conn_data.get('account'),
+                    source2_conn_data.get('warehouse'),
+                    source2_conn_data.get('database'),
+                    source2_conn_data.get('role')
+                )
+        
+        result = compare_query_results(
+            source1, 
+            source2, 
+            conn1, 
+            conn2,
+            query1,
+            query2,
+            id_field1, 
+            id_field2,
+            column_level_compare
+        )
+        
+        if hasattr(conn1, 'close'):
+            conn1.close()
+        if hasattr(conn2, 'close'):
+            conn2.close()
+            
+        return jsonify(result)
+    
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 @api_bp.route('/health', methods=['GET'])
 def health_check():
