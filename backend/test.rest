@@ -38,3 +38,44 @@ GET http://localhost:5000/api/execution-history
 
 ###
 GET http://localhost:5000/api/result/EMPLOYEE4_comparison_2025-05-02_04-27-42.json
+
+###
+POST http://localhost:5000/api/compare-queries
+Content-Type: application/json
+
+{
+    "source1": "HANA",
+    "source1_connection": {
+        "name": "BPD",
+        "type": "HANA",
+        "address": "analyticsdev.illumina.com",
+        "port": "30041",
+        "user": "ANISHANTH",
+        "password": "Ibm@032025",
+        "account": "",
+        "database": "",
+        "warehouse": "",
+        "role": ""
+    },
+    "source2": "SNOWFLAKE",
+    "source2_connection": {
+        "name": "DL_DEV",
+        "type": "Snowflake",
+        "address": "",
+        "port": "",
+        "user": "anishanth@illumina.com",
+        "password": "IBM@032025",
+        "account": "illumina",
+        "database": "DB_ENTERPRISE_DL_DEV",
+        "warehouse": "WH_ENTERPRISE_DL_DEV",
+        "role": "ENT_DL_ADMIN_DEV",
+        "sso": true
+    },
+    "table_info": {
+        "query1": "select * from anishanth.employee4",
+        "query2": "select * from ilmn_sfdc.tst_alfen",
+        "id_field1": "EMPID",
+        "id_field2": "EMPID"
+    },
+    "comparison_type": "sqlQuery"
+}
