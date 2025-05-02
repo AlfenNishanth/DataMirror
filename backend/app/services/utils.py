@@ -237,7 +237,86 @@ def get_detailed_comparison(source1, source2, conn1, conn2, table_name1, table_n
                             schema_name1, schema_name2, id_field1, id_field2, 
                             mismatched_ids, common_cols_1, common_cols_2,
                             column_str_1, column_str_2):
-    pass
+    
+    all_detailed_results = []
+    
+    for i in range(0, len(mismatched_ids), batch_size):
+        batch_ids = mismatched_ids[i:i+batch_size]
+        start_time = time.time()
+        
+        print(f"Processing batch {i//batch_size + 1}/{math.ceil(len(mismatched_ids)/batch_size)} ({len(batch_ids)} records)")
+        
+        id_list_str = ', '.join([f"'{id}'" for id in batch_ids])
+        
+        query1 = f'SELECT "{id_field1}", {column_str_1} FROM {schema_name1}."{table_name1}" WHERE "{id_field1}" IN ({id_list_str})'
+        
+        query2 = f'SELECT "{id_field2}", {column_str_2} FROM {schema_name2}."{table_name2}" WHERE "{id_field2}" IN ({id_list_str})'
+        
+        cursor1 = conn1.cursor()
+        cursor2 = conn2.cursor()
+        
+        print("Executing query for source 1...")
+        cursor1.execute(query1)
+        records1 = cursor1.fetchall()
+        
+        print("Executing query for source 2...")
+        cursor2.execute(query2)
+        records2 = cursor2.fetchall()
+        
+        records1_dict = {}
+        for row in records1:
+            id_val = row[0]
+            records1_dict[id_val] = {common_cols_1[i]: row[i+1] for i in range(len(common_cols_1))}
+            
+        records2_dict = {}
+        for row in records2:
+            id_val = row[0]
+            records2_dict[id_val] = {common_cols_2[i]: row[i+1] for i in range(len(common_cols_2))}
+        
+        for id_val in batch_ids:
+            if id_val in records1_dict and id_val in records2_dict:
+                record1 = records1_dict[id_val]
+                record2 = records2_dict[id_val]
+                
+                different_fields = []
+                for i, col1 in enumerate(common_cols_1):
+                    col2 = common_cols_2[i]
+                    val1 = record1[col1]
+                    val2 = record2[col2]
+                    
+                    if val1 is not None and val2 is not None:
+                        # if hasattr(val1, 'hex'):
+                        #     val1 = val1.hex().upper()
+                        # if hasattr(val2, 'hex'):
+                        #     val2 = val2.hex().upper()
+                        
+                        # Convert to strings for comparison
+                        # val1_str = str(val1).strip()
+                        # val2_str = str(val2).strip()
+                        
+                        # if val1_str != val2_str:
+                        if val1 != val2:
+                            different_fields.append(col1)
+                    elif (val1 is None and val2 is not None) or (val1 is not None and val2 is None):
+                        different_fields.append(col1)
+                
+                # Add to results if there are differences
+                if different_fields:
+                    all_detailed_results.append({
+                        "id": id_val,
+                        "different_fields": different_fields,
+                        "source1_data": record1,
+                        "source2_data": record2
+                    })
+        print(len(all_detailed_results), "records processed")
+        print(f"Batch processed in {time.time() - start_time:.2f} seconds")
+    
+    return {
+        "column_details": {
+            "common_columns": common_cols_1
+        },
+        "mismatched_records": all_detailed_results
+    }
 
 def categorize_difference(val1, val2):
     pass
