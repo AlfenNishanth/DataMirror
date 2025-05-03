@@ -293,11 +293,11 @@ def get_detailed_comparison(source1, source2, conn1, conn2, table_name1, table_n
                         #     val2 = val2.hex().upper()
                         
                         # Convert to strings for comparison
-                        # val1_str = str(val1).strip()
-                        # val2_str = str(val2).strip()
+                        val1_str = str(val1).strip()
+                        val2_str = str(val2).strip()
                         
-                        # if val1_str != val2_str:
-                        if val1 != val2:
+                        if val1_str != val2_str:
+                        # if val1 != val2:
                             different_fields.append(col1)
                     elif (val1 is None and val2 is not None) or (val1 is not None and val2 is None):
                         different_fields.append(col1)
