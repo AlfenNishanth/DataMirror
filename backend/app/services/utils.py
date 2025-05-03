@@ -218,6 +218,7 @@ def compare_hash_values(hash_map_1, hash_map_2):
     missing_in_1_sample = random.sample(list(missing_in_1), min(len(missing_in_1), file_sample_size)) if missing_in_1 else []
     missing_in_2_sample = random.sample(list(missing_in_2), min(len(missing_in_2), file_sample_size)) if missing_in_2 else []
     
+### todo: send all_mismatched_ids and then remove them from final result    
     comparison_results = {
         "total_in_system1": len(ids_in_1),
         "total_in_system2": len(ids_in_2),
@@ -239,7 +240,7 @@ def get_detailed_comparison(source1, source2, conn1, conn2, table_name1, table_n
                             column_str_1, column_str_2):
     
     all_detailed_results = []
-    
+    no_difference = 0
     for i in range(0, len(mismatched_ids), batch_size):
         batch_ids = mismatched_ids[i:i+batch_size]
         start_time = time.time()
@@ -308,10 +309,13 @@ def get_detailed_comparison(source1, source2, conn1, conn2, table_name1, table_n
                         "source1_data": record1,
                         "source2_data": record2
                     })
+                else:
+                    no_difference += 1
         print(len(all_detailed_results), "records processed")
         print(f"Batch processed in {time.time() - start_time:.2f} seconds")
     
     return {
+        "no_difference": no_difference,
         "column_details": {
             "common_columns": common_cols_1
         },

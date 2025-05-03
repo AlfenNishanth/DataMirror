@@ -7,7 +7,7 @@ export function SystemSourceCard({ data, systemNumber }) {
   const tableName = isSystem1 ? data.table_name1 : data.table_name2;
   const idField = isSystem1 ? data.id_field1 : data.id_field2;
   const totalRecords = isSystem1 ? data.total_in_system1 : data.total_in_system2;
-  const missingRecords = isSystem1 ? data.missing_in_system1.length : data.missing_in_system2.length;
+  const missingRecords = isSystem1 ? data.no_missing_in_system_1 : data.no_missing_in_system_2;
   const queryTime = isSystem1 ? data.execution_time.system1_query : data.execution_time.system2_query;
   const colorClass = isSystem1 ? 'blue' : 'green';
 

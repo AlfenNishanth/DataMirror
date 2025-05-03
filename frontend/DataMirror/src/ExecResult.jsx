@@ -156,7 +156,7 @@ export default function ExecResult() {
         } else {
           setData(sampleData);
           console.warn("No result data found in location state, using sample data");
-          setError("No comparison data available");
+          // setError("No comparison data available");
           setLoading(false);
         }
       } catch (error) {
@@ -221,7 +221,7 @@ export default function ExecResult() {
             <h2 className="text-lg font-semibold">Comparison Results</h2>
             <div className="flex gap-2">
               <span className="px-2 py-1 bg-yellow-50 text-yellow-700 rounded-full text-xs font-medium">
-                {data.mismatched_ids.length} Mismatched Records
+                {data.no_mismatched_records} Mismatched Records
               </span>
               <span className="px-2 py-1 bg-red-50 text-red-700 rounded-full text-xs font-medium">
                 {data.total_differences} Total Differences
