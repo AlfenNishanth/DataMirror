@@ -693,19 +693,19 @@ def main():
     source1 = 'HANA' 
     source2 = 'SF' 
 
-    # table_name1 = 'CASE'
-    # table_name2 = 'CASE'
-    # schema_name1 = 'REP_ILMN_INFC_SFDC'
-    # schema_name2 = 'ILMN_SFDC'
-    # id_field1 = 'ID' 
-    # id_field2 = 'ID'
-
-    table_name1 = 'EMPLOYEE4'
-    table_name2 = 'TST_ALFEN'
-    schema_name1 = 'ANISHANTH'
+    table_name1 = 'APTTUS_PROPOSAL__PROPOSAL__C'
+    table_name2 = 'APTTUS_PROPOSAL__PROPOSAL__C'
+    schema_name1 = 'REP_ILMN_INFC_SFDC'
     schema_name2 = 'ILMN_SFDC'
-    id_field1 = 'EMPID' 
-    id_field2 = 'EMPID'
+    id_field1 = 'ID' 
+    id_field2 = 'ID'
+
+    # table_name1 = 'EMPLOYEE4'
+    # table_name2 = 'TST_ALFEN'
+    # schema_name1 = 'ANISHANTH'
+    # schema_name2 = 'ILMN_SFDC'
+    # id_field1 = 'EMPID' 
+    # id_field2 = 'EMPID'
 
     hana_address = 'analyticsdev.illumina.com'
     port = 30041

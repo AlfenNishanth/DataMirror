@@ -8,28 +8,31 @@ import time
 import math
 
 conn1 = dbapi.connect(
-    address="",
+    address="analyticsdev.illumina.com",
     port=30041, 
-    user="",
-    password=""
+    user="ANISHANTH",
+    password="Ibm@032025"
 )
 
 
 conn2 = snowflake_conn = snowflake.connector.connect(
-    user= '',
-    password='',
-    account='',
-    warehouse='',
-    database= '',       
-    schema='',
-    role =  '' 
+    user= 'anishanth@illumina.com',
+    password='IBM@032025',
+    account='illumina',
+    warehouse='WH_ENTERPRISE_DL_DEV',
+    database= 'DB_ENTERPRISE_DL_DEV',       
+    schema='ILMN_SFDC',
+    role =  'ENT_DL_ADMIN_DEV',
+    authenticator="externalbrowser", 
+    client_session_keep_alive=False,
+    authenticator_sso_url="https://illumina.okta.com/sso"
 )
 
 
-schema_name = ""
-schema_name2 = ""
-table_name =    ""
-table_name2 = ""
+schema_name = "REP_ILMN_INFC_SFDC"
+schema_name2 = "ILMN_SFDC"
+table_name =    "APTTUS_PROPOSAL__PROPOSAL__C"
+table_name2 = "APTTUS_PROPOSAL__PROPOSAL__C"
 id_column1 = "ID"
 id_column2 = "ID"
 
