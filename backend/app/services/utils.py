@@ -241,6 +241,7 @@ def get_detailed_comparison(source1, source2, conn1, conn2, table_name1, table_n
     
     all_detailed_results = []
     no_difference = 0
+    no_difference_ids = []
     for i in range(0, len(mismatched_ids), batch_size):
         batch_ids = mismatched_ids[i:i+batch_size]
         start_time = time.time()
@@ -310,9 +311,14 @@ def get_detailed_comparison(source1, source2, conn1, conn2, table_name1, table_n
                         "source2_data": record2
                     })
                 else:
+                    no_difference_ids.append(id_val)
                     no_difference += 1
         print(len(all_detailed_results), "records processed")
         print(f"Batch processed in {time.time() - start_time:.2f} seconds")
+        
+    with open("no_mismatches.txt", "w") as f:
+        for id_val in no_difference_ids:
+            f.write(f"{id_val}\n")
     
     return {
         "no_difference": no_difference,
