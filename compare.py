@@ -302,6 +302,6 @@ else:
             user_input = input("Continue to the next batch? (y/n): ").lower()
             if user_input != 'y':
                 break '''
-
+ 
 conn1.close()
 conn2.close()
